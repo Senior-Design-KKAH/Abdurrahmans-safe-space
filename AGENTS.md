@@ -1,150 +1,125 @@
-# Project guide for AI agents
+# Sensing firmware: guide for AI agents
 
-## Purpose and working approach
+## Scope and purpose
 
-This repository studies Red Palm Weevil acoustic sensing: recordings → quantized MFCCs → lossless temporal-delta Rice compression → an ESP32-to-LoRa application payload. Offline experiments and firmware are separate implementations with different packet conventions.
+This repository implements an ESP32-WROOM-32 piezoelectric sensing prototype:
 
-- Read the relevant implementation and task document before changing code. Ask about material ambiguities before execution; otherwise proceed within the requested scope.
-- Preserve source recordings and existing experiment artifacts. Use a separate directory for a new feature layout or experiment unless the user explicitly requests replacement.
-- Keep the repository root tidy. Put implementation, tests, documentation, logs and outputs under the relevant project directory.
-- Prefer plain, understandable code and minimal dependencies. Firmware should remain a small Arduino prototype, not an IoT framework.
-- Report measured results separately from estimates and unexecuted procedures. Never infer physical sampling, successful flashing, RF delivery or regulatory compliance from a build or host test.
-- Keep user-facing summaries concise. Link detailed reports and tables when useful.
+**10-second capture → bandpass → 15×13 MFCCs → signed int8 quantization → temporal delta/ZigZag/Rice coding → serial payload output → optional LoRa transmission.**
 
-## Repository map
+All paths and commands in this guide are relative to this repository's root. Keep work focused on the files here. The firmware does not perform classification, cloud integration, activity detection, deep sleep, or scheduled measurements.
+
+Read the relevant source before editing. Ask about material ambiguities; otherwise implement the requested work. Prefer small, plain functions and minimal dependencies. Add concise one-line comments above functions and around non-obvious processing steps. Keep user-facing summaries short and distinguish measured results from estimates.
+
+## File map
 
 | Path | Purpose |
 | --- | --- |
-| `lab/`, `field/` | Original audio trees, with nested folders; treat as read-only |
-| `TreeVibes.xlsx` | Original dataset-associated workbook |
-| `mfcc/mfcc_processor.py` | Reusable original 15-frame × 13-coefficient extraction pipeline |
-| `mfcc/outputs/` | Verified original lab/field quantized NPZ archives |
-| `mfcc/MFCC_USAGE.md`, `MFCC_RUN_SUMMARY.md` | Extraction commands, numeric choices and results |
-| `mfcc/schedule_bank/` | Original 15×13 compression optimization, codec, tests and reports |
-| `mfcc/schedule_bank/results/` | Balanced-bank experiment, split manifest, metrics and per-record sizes |
-| `mfcc/schedule_bank/field_only/` | Field-only banks of sizes 1/2/4/8/16 and comparison tables |
-| `mfcc/30x15/` | Isolated 30-frame × 15-coefficient extraction and newly optimized banks |
-| `sensing/` | ESP32 firmware, exact six-byte-header payload, Python decoder and verification |
-| `bank-selection.md` | Original offline optimization requirements |
-| `sensing-to-payload-implementation.md` | Detailed firmware/payload requirements |
-| `adaptive-rice-explainer.md` | Background explanation; inspect before treating it as executable requirements |
+| `platformio.ini` | ESP32 target, pinned framework/library versions and compiler flags |
+| `src/main.cpp` | Manual capture flow, ADC DMA, serial diagnostics and optional radio transmission |
+| `src/dsp.cpp` | Forward/backward filtering, FFT, MFCC aggregation and quantization call |
+| `src/payload.cpp` | Quantization, fixed Rice bank, schedule selection and binary packet builder |
+| `include/config.h` | Capture mode, actual ADC pin, unsigned header codes and RF configuration |
+| `include/pipeline.h` | Shared constants, status codes, bounded workspace and C-compatible function declarations |
+| `include/dsp_tables.h` | Checked-in filter, window, Mel, DCT and FFT constants |
+| `host/decoder.py` | Standard-library packet decoder and independent Python reference encoder |
+| `host/verify.py` | Native C++ build, generated tests, DSP comparisons and recording packet round-trips |
+| `host/generate_tables.py` | Helper for regenerating the checked-in DSP constants |
+| `PROTOCOL.md` | Exact wire format and a fully decoded generated example |
+| `VERIFICATION.md` | Recorded build/test results, numerical tolerances and verification limitations |
+| `BENCH_TEST.md` | Physical test procedure; a procedure is not proof that a test ran |
+| `README.md` | Build, configuration, usage and implementation explanation |
+| `results/` | Build/verification logs, JSON reports, golden vectors, example payload and compiled image |
 
-The extraction task document is `mfcc/mfcc_extraction.md`. Some task documents preserve older requirements followed by updates. The current decisions below and explicit subsequent user instructions resolve those historical differences.
+`results/example_payload.bin` and `.json` describe the same example. `golden_vectors.json` contains generated protocol test vectors. `verification.json` records numerical and packet checks; `build_verification.json` records the configuration/build snapshot and source hashes. Those snapshots can predate later configuration changes.
 
-## Dataset and extraction decisions
+## Current configuration and operation
 
-- Current datasets include **WAV only**: 54,643 lab recordings and 4,154 field recordings, totaling 58,797. Discover `.wav` case-insensitively and recursively.
-- There are 800 OGG files in the field tree. SoundFile rejected them as malformed; sampled FFmpeg checks also failed with CRC errors. The user explicitly instructed us to ignore them. Do not silently reintroduce them or treat their exclusion as a WAV-processing failure.
-- Preserve distinct relative paths, including the leading `lab/` or `field/`, nested directories and original extension. Do not deduplicate by basename or assume files are directly under the split root.
-- Duration rule: at least 20 s → 5–15 s; more than 10 but less than 20 s → centered 10 s; exactly 10 s → whole clip; less than 10 s → whole clip without padding. Cropping happens at the original sample rate. Short clips use temporal bins across their actual duration; insufficient frames for nonempty bins must fail explicitly.
-- Convert multichannel audio to mono by floating-point channel mean; resample properly to 8 kHz with anti-alias filtering.
-- Reference filtering is SciPy order-4 Butterworth bandpass 100–2,500 Hz in SOS form with `sosfiltfilt`, not a causal streaming filter.
-- MFCC: periodic Hann window 200 samples, FFT 256, hop 80, complete uncentered windows, power spectrum, 26 Slaney Mel filters with Slaney area normalization over 100–2,500 Hz, `power_to_db(ref=1, amin=1e-10, top_db=80)`, type-II orthonormal DCT. The 80 dB floor is relative to the entire clip's maximum Mel energy.
-- Aggregate short-time vectors by their analysis-window center into equal nonoverlapping temporal bins. Do not resize feature images or take only the first few frames.
-- Original layout: 15 bins × coefficients 0–12. Variant: 30 bins × coefficients 0–14. The 30×15 variant re-extracted the WAVs and fitted new 15-parameter schedules; it did not reuse the old 13-parameter schedules.
-- Quantize the entire matrix with one stored float32 scale, `max(abs(M))/127`; all-zero matrices use scale 1. Use that stored scale in division, round ties to even, clip to [-127,127], and store signed int8.
-- No per-coefficient standardization, cepstral mean normalization, signal squaring before MFCC, activity gating, moving-average detection, SNR or threshold-based dropping. Squared FFT magnitude for the conventional MFCC power spectrum is still required.
+At the time of this guide's update, `include/config.h` contains:
 
-Both NPZs contain exactly `mfcc_q`, `scale`, `path`, with matching row indices. Shapes are `(N,15,13)` or `(N,30,15)`, `(N,)`, `(N,)`; dtypes are int8, float32, Unicode. Always load with `allow_pickle=False`. Reconstruction is `mfcc_q[i].astype(float32) * scale[i]`. Original paths must stay aligned with both arrays. Failures must be explicit; publish a split atomically only when its requested recordings validate.
+- `BENCH_MODE=false`: physical ADC capture is selected.
+- `ADC_GPIO=34`, `ADC_SWAP_ADJACENT=true`.
+- Unsigned header codes: node ID **187**, date code **2**, battery code **7**.
+- `RADIO_ENABLED=false`, `ALLOW_SYNTHETIC_RF=false`.
+- LoRa wiring and RF settings remain unset.
 
-## Compression experiments and comparisons
+Always inspect `config.h`; do not assume earlier documentation about synthetic defaults describes the current build. Preserve the user's chosen pin and header codes when making unrelated changes.
 
-- Delta-code along time within each coefficient: `int16(Q[t,c]) - int16(Q[t-1,c])`. Never flatten before differencing and never subtract in int8.
-- Preserve the complete first frame as signed bytes. Original layout has 182 deltas and a 104-bit first frame; 30×15 has 435 deltas and a 120-bit first frame.
-- ZigZag: `2*d` for nonnegative d, otherwise `-2*d-1`. Rice: quotient zeros then one, followed by k MSB-first remainder bits. Symbols are time-major; zero-pad only the final byte.
-- Original experiments compare bank sizes 1/2/4/8/16 and lab-only, field-only, and balanced objectives. Balanced gives lab and field equal total weight, regardless of recording counts.
-- Schedules use k=0..8. Training uses seeded iterative assignment/update and four restarts. Validation chooses restarts and the smallest bank within 0.5 bytes of the best validation mean. Test data must not derive schedules or decide hyperparameters. These are local optimization results, not a proof of global optimality.
-- Reuse `mfcc/schedule_bank/results/split_manifest.csv` for matched comparisons. Lab uses heuristic blocks of 100 consecutive IDs within class because no parent/session mapping exists. Field uses recording dates, holding out all original test dates and other clips from those dates. Grouping does not prove true session/device independence.
-- Original split counts: lab 32,729 train / 10,957 validation / 10,957 test; field 1,434 train / 427 validation / 2,293 test. No path or declared group crosses stages.
-- Experimental codecs support plain Rice and a separately evaluated one-bit raw fallback. Their assumed metadata prefix is **8 bytes**: version, application type, uint16 sequence and float32 scale.
-- Original raw baseline is 195 bytes; variant raw baseline is 450. With fallback flag and padding, caps are 196 and 451 bytes respectively, before the assumed metadata.
-- Say whether results use all recordings or only held-out rows. All recordings were processed even when summary tables show only test rows. Do not compare cohort changes as compression gains.
-- Percentiles use empirical inverse CDF (`method='inverted_cdf'`). Report byte padding/index/mode/header costs consistently. NPZ container compression is not Rice compression performance.
-- Preserve row-level measurements for plotting. Useful files:
-  - `mfcc/schedule_bank/results/recording_size_comparison.csv`: every original recording under balanced B2 and field-only B1/2/4/8/16.
-  - `mfcc/schedule_bank/field_only/percentile_comparison.csv` and `lab_percentile_comparison.csv`: original held-out field/lab statistics for those same banks.
-  - `mfcc/30x15/results/recording_size_comparison.csv`: every variant recording under newly trained banks.
-  - `mfcc/30x15/results/{lab,field}_percentile_comparison.csv`: variant held-out statistics.
-  - `mfcc/30x15/results/comparison_15x13_vs_30x15.csv`: old/new held-out statistics together.
+Open Serial at **115200 baud** and send lowercase **`c`** for one measurement. Capture retains 80,000 samples at a requested 8,000 samples/second. DSP runs afterward, then the sketch prints `ENC status`, payload length, selected schedule and **`PAYLOAD_HEX=...`**. Serial payload output works without a radio module. No measurement runs automatically at startup.
 
-Inspect actual JSON `schedules`, array contents and wire specifications instead of assuming compatibility from a filename. The original selected balanced B2, field-specific banks, 30×15 banks and fixed firmware bank are different configurations.
+Synthetic bench mode generates a labeled 500 Hz waveform instead of sampling. It uses explicit example header codes, not operational telemetry. Synthetic RF requires its separate configuration switch. Date and battery fields are caller-supplied codes; there is no implemented calendar, battery-voltage or percentage mapping.
 
-## Firmware source of truth and constraints
+## Acquisition and analog input
 
-The sensing firmware intentionally returns to **15×13**, with the exact ordered eight-entry bank from `sensing-to-payload-implementation.md`. Definitions are in `sensing/src/payload.cpp` and `sensing/host/decoder.py`; the full wire specification is `sensing/PROTOCOL.md`. Do not substitute the selected balanced bank, reorder the eight schedules, use 30×15 features, or add a raw fallback without an explicitly agreed protocol change.
+Capture uses ADC1 through the pinned classic ESP32 I2S DMA driver, with APLL requested at 8 kHz, 12-bit ADC codes and `ADC_ATTEN_DB_12`. Two startup DMA buffers are discarded. The retained samples must have the expected ADC channel tags; timeouts, DMA errors/overruns, insufficient samples and gross duration faults reject the capture.
 
-The actual sensing application payload is:
+`ADC_SWAP_ADJACENT` handles the selected 16-bit mono DMA ordering. Confirm sample order and actual sample rate on hardware before changing this flag or upgrading the ADC driver. The elapsed-time acceptance window of 9.8–10.2 seconds detects gross faults; its reported effective rate is not an external clock calibration.
 
-```text
-byte 0: unsigned node ID (8 bits, 0..255)
-byte 1: bits 7..3 unsigned date code (0..31), bits 2..0 unsigned battery code (0..7)
-bytes 2–5: IEEE754 float32 scale, big-endian
-byte 6 onward: 3-bit schedule index, 104-bit first frame, 182 Rice symbols
-final bits only: zero padding
-length = 6 + ceil((3 + 104 + Rice_bits)/8)
-```
+The intended analog front end supplies appropriate high-impedance buffering/amplification, DC bias, protection and anti-alias filtering before GPIO34. A bare piezo is not a properly conditioned ADC source. Digital filtering cannot repair analog clipping or prior aliasing. Input normalization removes the recording's mean and divides raw ADC codes by 2048; it is not calibrated voltage or acoustic amplitude. Synthetic signed PCM uses divisor 32768.
 
-The current 5-bit-date/3-bit-battery layout supersedes the earlier 4+4 layout. Encoder and decoder must be updated together; the unversioned wire format cannot distinguish old packets automatically. There is no version byte, sequence number, mode flag or extra length field in this format. Its **6-byte header** must not be confused with the experiments' **8-byte metadata assumption**. The eight-entry index costs 3 bits. Selection minimizes packed bytes, then total bits, then schedule index. LoRa 0.8.0 supports at most 255 application bytes and can truncate writes; the encoder rejects oversize packets first and reports their exact required length. No fragmentation or automatic fallback is implemented. Radio/PHY overhead and airtime are separate.
+**User-reported bench observation:** with the piezo directly connected to GPIO34 near a 1.5 kHz speaker, the serial output reported 80,000 samples, 10.094504 seconds, raw min/max 0/367, and 75,896 rail samples. Since the upper rail was never reached, 94.87% of the samples were exactly zero. DSP took about 20.81 seconds, encoding 351 microseconds, and the payload was 56 bytes. Treat this as a reported physical observation, not a formally validated frequency-response test. Input conditioning remains unresolved; do not interpret mostly-zero MFCC coefficients as evidence of absent sound or insect activity.
 
-Firmware files:
+## DSP behavior to preserve
 
-- `sensing/src/main.cpp`: one-shot manual capture, ADC checks, serial diagnostics, optional transmission.
-- `sensing/src/dsp.cpp`: matched forward/backward SOS, fixed FFT/MFCC and binning.
-- `sensing/src/payload.cpp`: ties-to-even quantization and bounded packet encoding.
-- `sensing/include/config.h`: hardware/RF/caller codes; default synthetic bench mode and RF disabled.
-- `sensing/include/dsp_tables.h`: generated reference constants; reproduce with `host/generate_tables.py` and verify after changes.
-- `sensing/host/decoder.py`: standalone standard-library decoder and independent reference packet builder.
-- `sensing/host/verify.py`: native C++ build, boundary/golden tests, DSP comparison, all-recording packet round-trips.
+- Process the filtered, unsquared 10-second waveform; no SNR, power-envelope gating or threshold-based dropping.
+- Use a fourth-order Butterworth 100–2,500 Hz bandpass in four SOS sections, forward and backward with 27-sample odd edge extension and steady-state initialization. A causal IIR is not numerically equivalent.
+- Use periodic Hann windows of 200 samples, a 256-point FFT, an 80-sample hop, no centered/padded analysis frames, and a power spectrum.
+- Apply 26 Slaney Mel filters with area normalization over 100–2,500 Hz. Log power uses reference 1, minimum energy 1e-10 and an 80 dB floor relative to the entire capture's maximum Mel energy.
+- Apply orthonormal type-II DCT and retain coefficients 0–12. Average the 998 complete analysis frames into 15 equal chronological bins using each window's center. Do not resize, interpolate or simply truncate to 15 frames.
+- Quantize the complete 15×13 floating matrix with one stored IEEE754 float32 scale: `max(abs(M))/127`, or 1 for an all-zero matrix. Divide by that stored scale, round ties to even including negative halfway cases, and clip to signed int8 [-127,127]. No per-coefficient normalization or cepstral mean subtraction is applied.
 
-The acquisition implementation uses ADC1 through the pinned classic ESP32 I2S DMA driver, requesting 8 kHz and retaining 80,000 samples. It checks sample tags, DMA overruns/timeouts and gross elapsed-time failures. Do not replace it with uncontrolled `analogRead`/delay sampling. Check mono adjacent-sample ordering and rate on the actual board before accepting physical results.
+The 160,000-byte PCM capture is allocated in four 40,000-byte chunks. The fixed DSP workspace is 20,568 bytes. Checkpoint/replay filtering avoids storing a full floating waveform. Two spectral traversals implement the clip-global log floor. Keep allocations outside tight processing loops and check failures explicitly.
 
-Four 40,000-byte PCM chunks avoid one large 160 KB allocation. A 20,568-byte workspace uses filter-state checkpoints/block replay to implement the reference's 27-sample odd padding and forward/backward filtering without allocating a full floating waveform. Two spectral traversals implement the clip-global 80 dB floor. Preserve that numerical behavior if refactoring; causal filtering is not equivalent. No tight-loop allocations or heavy DSP/ML dependencies are needed.
+The current implementation uses double precision and repeated filter/FFT work to preserve the reference behavior within the available RAM. Roughly 21 seconds of DSP has been reported on the physical board. Any performance changes must be measured and checked numerically; a faster implementation must not silently change filtering, Mel normalization, rounding or payload semantics.
 
-### Open decisions and verified status
+## Exact payload contract
 
-- Actual ADC1 pin, MCP6002 gain/bias/protection/anti-aliasing, LoRa wiring, module/antenna band and permitted regional settings are unknown. Configuration placeholders deliberately remain unset. Do not infer them from dataset paths or fabricate a regional band.
-- Node ID, date code and battery code use unsigned integer APIs, with wire ranges 0..255, 0..31 and 0..7 respectively. Date/battery meanings remain opaque; no calendar, percentage or voltage mapping is agreed. Synthetic example codes are labeled and are not actual telemetry.
-- ADC uses 12-bit raw codes at the pinned core's `ADC_ATTEN_DB_12` setting, removes the recording mean, and normalizes by 2048. No calibrated acoustic amplitude or ADC voltage transfer is claimed. Analog gain/nonlinearity can affect model inputs; digital filtering cannot prevent prior analog aliasing.
-- As of the recorded implementation verification: ESP32 cross-compilation passed; all 58,797 original matrices round-tripped with exact scale bits; nine native shared-DSP PCM comparisons had zero quantized differences and matching payloads. These native results are not execution on the ESP32.
-- Physical flashing, ADC sampling, on-device DSP accuracy/latency/heap peaks, and over-the-air transmission/reception remain untested. `sensing/BENCH_TEST.md` is an unexecuted procedure. `TX_DONE` indicates local radio completion, not receiver acknowledgment.
-- `sensing/VERIFICATION.md` and `sensing/results/verification.json` record measurements; `results/build_verification.json` records build/source hashes. Rerun relevant checks after code changes and update reports rather than assuming old measurements still apply.
+| Position | Field | Encoding |
+| --- | --- | --- |
+| Byte 0 | Node ID | Unsigned 8-bit, 0–255 |
+| Byte 1 bits 7–3 | Date code | Unsigned 5-bit, 0–31 |
+| Byte 1 bits 2–0 | Battery code | Unsigned 3-bit, 0–7 |
+| Bytes 2–5 | Reconstruction scale | IEEE754 float32, big-endian |
+| From byte 6 | Schedule index | 3 bits, immediately followed by data |
+| Next | Complete first MFCC frame | 13 signed int8 values, 104 bits |
+| Next | Temporal deltas | 182 Rice-coded ZigZag integers, time-major |
+| End only | Padding | 0–7 zero bits to finish the final byte |
 
-## Reproducible commands
+Byte 1 is `(date << 3) | battery`. Current node/date/battery values produce initial bytes **`bb 17`**. C++ header APIs use unsigned `uint32_t` inputs and validate wire ranges before narrowing; Python requires integer, nonnegative, in-range values.
 
-Run from the repository root unless a command changes directories. Existing scientific dependencies are pinned in `mfcc/requirements-mfcc.txt`; schedule-bank-only dependencies are also declared locally. `NUMBA_CACHE_DIR` must be writable when installed libraries are read-only. Commands do not imply permission to overwrite existing outputs outside the user's requested scope.
+All bits are MSB-first, with no padding between fields. The header is **six bytes**. There is no version byte, sequence number, length field, raw-mode flag, fallback or fragmentation. The current 5+3 packing replaced an older 4+4 layout; both endpoints must agree because old packets cannot be identified automatically.
+
+Preserve the exact ordered **eight-entry, 13-parameter bank** in `src/payload.cpp` and `host/decoder.py`. Never replace or reorder it as an incidental optimization. Choose the lowest final packed byte cost, then lowest total bit count, then lowest index.
+
+Store the first frame directly. For t=1..14 and c=0..12, compute `d = int16(Q[t,c]) - int16(Q[t-1,c])`, then ZigZag `u = 2*d` if nonnegative, otherwise `-2*d-1`. Never difference adjacent coefficients or subtract in int8. Emit symbols with time outermost and coefficient innermost. Rice writes `u >> k` zeros, a one terminator, then k remainder bits MSB-first.
+
+Application length is `6 + ceil((3 + 104 + Rice_bits)/8)` bytes. The encoder rejects lengths above 255 before writing/transmitting and reports the exact required size. The alternating ±127 stress case requires 5,947 bytes and must fail explicitly. Radio/PHY overhead is separate from application bytes. The decoder must validate scale, bounds, unary syntax, exact symbol count and terminal padding, while preserving all 195 coefficients and all scale bits.
+
+## Build and local tools
+
+Run from this repository's root:
 
 ```bash
-# Original extraction/tests; extraction writes the supplied output directory.
-NUMBA_CACHE_DIR=/tmp/treevibes-numba-cache PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m pytest -q -p no:cacheprovider mfcc/test_mfcc_processor.py
-NUMBA_CACHE_DIR=/tmp/treevibes-numba-cache PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python mfcc/mfcc_processor.py . mfcc/outputs --workers 8 --wav-only
-
-# Original bank tests and experiment: defaults resolve relative to the script.
-cd mfcc/schedule_bank
-PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python -m pytest -q -p no:cacheprovider test_schedule_bank.py
-PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python experiment.py
-PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python field_bank.py
-cd ../..
-
-# 30x15 variant, with original archives preserved.
-cd mfcc/30x15
-NUMBA_CACHE_DIR=/tmp/treevibes-numba-cache PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python -m pytest -q -p no:cacheprovider test_variant.py
-NUMBA_CACHE_DIR=/tmp/treevibes-numba-cache PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python extract.py ../.. outputs --workers 8 --wav-only
-PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python analyze.py
-cd ../..
-
-# Sensing: compile, native verification, standalone decoder.
-pio run -d sensing
-NUMBA_CACHE_DIR=/tmp/treevibes-numba-cache PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python sensing/host/verify.py
-python sensing/host/decoder.py --file sensing/results/example_payload.bin
+pio run
+pio run -t upload --upload-port YOUR_PORT
+pio device monitor --port YOUR_PORT --baud 115200
+python host/decoder.py --file results/example_payload.bin
+python host/decoder.py --hex HEX_DIGITS
 ```
 
-Firmware build packages are pinned in `sensing/platformio.ini`: Espressif32 7.1.3, Arduino package `4.20017.260907+sha.dcc1105b`, LoRa 0.8.0. Do not casually upgrade the ADC driver/framework while claiming unchanged capture semantics. Use `sensing/README.md` for flash/serial instructions after hardware configuration. Host Python code is not firmware runtime code.
+Uploading affects the connected board; do it as part of the requested hardware task. A successful build is not proof of successful sampling or RF delivery. The saved example has synthetic header codes and is not necessarily the current physical node's payload.
 
-## Change and verification discipline
+`platformio.ini` pins Espressif32 **7.1.3**, Arduino framework package **4.20017.260907+sha.dcc1105b**, and **LoRa 0.8.0**, targeting `esp32dev`. SPI and the ADC/I2S driver come with the Arduino core. Keep dependencies minimal and do not casually upgrade the framework while assuming unchanged DMA behavior. Compiler flags disable fast math and floating-point contraction for reproducibility.
 
-- Use focused tests for the affected pipeline; preserve quantized matrices and float32 scale bits where losslessness is required.
-- A firmware encoder or layout change requires cross-language packet checks, malformed/oversize tests and a firmware build. DSP changes require identical-PCM reference comparisons, not merely shape tests.
-- Changes to training, grouping or selection require a new reproducible experiment and clear provenance. Do not tune against already observed test results and then describe that test as untouched for the new decision.
-- Keep concise comments where they explain non-obvious firmware/DSP/hardware choices; preserve the existing style elsewhere.
-- Avoid introducing extra frameworks or unnecessary generated artifacts. `__pycache__`, `.pytest_cache`, native `.so` files and PlatformIO `.pio/` are reproducible/disposable; retain source, pinned dependencies, reports, golden vectors and requested data outputs. Prevent caches during lightweight checks when practical.
-- Do not move or delete unrelated source assets, root task documents, hidden environment directories, or datasets as routine cleanup.
+The decoder uses only Python's standard library. The native verification helper uses g++, NumPy, SciPy, SoundFile and librosa. **The full `host/verify.py` and `host/generate_tables.py` workflows currently require external reference/data inputs that are not included in this repository.** They cannot complete from an isolated checkout alone. Check their actual imports and file access before running them; `--limit` does not remove those dependencies. The checked-in DSP tables allow firmware builds without regenerating constants. Golden vectors and the standalone decoder remain available locally. Do not claim full verification passed if external inputs were unavailable, and do not silently replace reference checks with fabricated data.
+
+## Verification, hardware status and change discipline
+
+- `VERIFICATION.md` and the saved JSON/logs record successful cross-compilation, 58,797 packet round-trips with exact scale bits, and nine native shared-DSP PCM comparisons with matching quantized matrices and payloads. These are historical test results, not automatic evidence about modified code or a newly configured build.
+- The native numerical tolerances are waveform absolute error <=1e-10 and MFCC absolute error <=1e-7, with zero quantized mismatches and exact scale/payload bits on the checked vectors. Native C++ agreement does not guarantee identical ESP32 libm behavior for every input.
+- A user has since reported physical ADC/DSP execution as described above. RF remains disabled and over-the-air receipt is unverified. Do not describe the entire physical signal chain as validated.
+- LoRa pins, module/antenna band and permitted radio settings remain unspecified. Never invent a regional band. The implemented variable-length explicit-header path supports SF7–12 and CRC; SF6 needs a separately agreed arrangement. `TX_DONE` confirms local completion only, not receiver acknowledgment.
+- Ask for missing circuit/wiring details when they affect the requested task. Do not use software filtering to conceal a missing bias, damaged input, clipping or poor mechanical coupling.
+- Protocol/encoder changes require cross-language round-trips, malformed/oversize tests and a firmware build. DSP changes require identical-input comparisons and measured timing. Preserve the user's hardware configuration during unrelated work.
+- Keep firmware as a few readable C++ functions. Do not introduce a framework, class hierarchy, scheduler, cloud layer or large DSP/ML dependency without a concrete requirement.
+- Keep requested source, reports, golden vectors and useful example outputs. `.pio/`, `__pycache__/` and native shared libraries are reproducible build/cache artifacts. Do not remove unrelated files or overwrite configuration/results without task scope.
+- This is its own Git repository. Inspect its status before Git operations; commit/push only the requested changes, preserve existing history, and do not force-push or include untracked editor files incidentally.
