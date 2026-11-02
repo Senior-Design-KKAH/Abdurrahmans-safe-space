@@ -1,0 +1,160 @@
+{
+  "generated": {
+    "generated_schedule_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "oversize_alternating_127_required_bytes": 5947,
+    "zero_payload_bytes": 43,
+    "golden_vectors": 9,
+    "truncation_cuts_checked": 43,
+    "unsigned_header_valid_cases": 7,
+    "unsigned_header_invalid_cases": 11
+  },
+  "dsp": {
+    "tolerances": {
+      "filtered_max_abs": 1e-10,
+      "mfcc_max_abs": 1e-07,
+      "quantized_mismatches": 0,
+      "scale_bits_equal": true,
+      "packet_bits_equal": true
+    },
+    "workspace_bytes": 20568,
+    "vectors": [
+      {
+        "name": "silence",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 4.547473508864641e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.032154389999959676
+      },
+      {
+        "name": "500Hz",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 1.8118839761882555e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.032660355999723834
+      },
+      {
+        "name": "biased_adc_730Hz",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 4.831690603168681e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.03210694999961561
+      },
+      {
+        "name": "seeded_noise",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 2.842170943040401e-14,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.03204206800000975
+      },
+      {
+        "name": "edge_and_center_impulses",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 5.115907697472721e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.031967476999852806
+      },
+      {
+        "name": "lab/lab/clean/clean_1.wav",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 1.7053025658242404e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.031976524999663525
+      },
+      {
+        "name": "lab/lab/infested/infested_33744.wav",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 1.7053025658242404e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.03199146299994027
+      },
+      {
+        "name": "field/field/test/difficult_cases/F_20200218001001_19_T8.6.wav",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 1.7053025658242404e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.03313076500035095
+      },
+      {
+        "name": "field/field/train/clean/folder_10/F_20200321111418_10_T38.6.wav",
+        "filtered_max_abs_error": 0.0,
+        "mfcc_max_abs_error": 1.1368683772161603e-13,
+        "quantized_mismatches": 0,
+        "scale_abs_error": 0.0,
+        "payload_equal": true,
+        "native_dsp_seconds": 0.03279412899973977
+      }
+    ],
+    "scope": "Native build of identical C++ firmware DSP, not execution on an ESP32. Embedded libm and physical ADC still require bench verification."
+  },
+  "datasets": {
+    "lab": {
+      "available": 54643,
+      "tested": 54643,
+      "success": 54643,
+      "failures": [],
+      "mean_bytes": 52.38671010010432,
+      "median_bytes": 52.0,
+      "p95_bytes": 55,
+      "p99_bytes": 57,
+      "max_bytes": 74,
+      "schedule_counts": {
+        "0": 52936,
+        "1": 1622,
+        "2": 41,
+        "3": 39,
+        "4": 5
+      },
+      "input_sha256": "a85f14da3cc8034916bcbeb2d7613eeb7009b9ebdade83fd08ec32769a123898"
+    },
+    "field": {
+      "available": 4154,
+      "tested": 4154,
+      "success": 4154,
+      "failures": [],
+      "mean_bytes": 71.06403466538276,
+      "median_bytes": 69.0,
+      "p95_bytes": 90,
+      "p99_bytes": 99,
+      "max_bytes": 123,
+      "schedule_counts": {
+        "0": 1106,
+        "1": 706,
+        "2": 343,
+        "3": 507,
+        "4": 607,
+        "5": 336,
+        "6": 284,
+        "7": 265
+      },
+      "input_sha256": "5c3a6dd12dc535877090d974bc29e14a84277fbb331c7081b5af77727172b9a9"
+    }
+  },
+  "physical_hardware_tested": false,
+  "rf_transmitted": false,
+  "format": "6-byte fixed header (unsigned node8/date5/battery3, float32 scale) + 3-bit index + 104-bit first frame + 182 Rice deltas + terminal zero padding; no fallback"
+}

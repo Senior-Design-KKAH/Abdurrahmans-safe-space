@@ -1,0 +1,49 @@
+{
+  "target": "ESP32-WROOM-32 / esp32dev",
+  "compiled": true,
+  "flashed": false,
+  "physical_sampling_tested": false,
+  "rf_transmitted": false,
+  "static_ram_bytes": 44068,
+  "linked_flash_bytes": 314685,
+  "firmware_bin_sha256": "2271eb13d4689f9f352cf59db6b758c7c95816cf28b74c95a71a803c45b01cdc",
+  "native_host": "Linux-7.2.13-200.fc44.x86_64-x86_64-with-glibc2.43",
+  "source_sha256": {
+    "src/dsp.cpp": "8e3368887b02d068dbefea2389bd1406ca57e24e97f926d82cd8307aa9f92599",
+    "src/main.cpp": "34b61538d96e6695e6fa918954d4c519dd734c6e0e2495b588e8a1c9d8acda75",
+    "src/payload.cpp": "4ec49501683cd9e1e4efe60f089e99d955b22a01f248283695b676f1ab685966",
+    "include/config.h": "994af825c041dc498a87c98d1e9153e4a596617f321d1d5c1be25139fe2e59e4",
+    "include/dsp_tables.h": "5b3338dc1f63399b58982bbfe53489c4a7447b514c174a05abe7eae6badce4d4",
+    "include/pipeline.h": "3e943f4a2495fcc2d6411a3d9b9cf153c58829868a0bc9e2813d7ab168349c0e",
+    "host/decoder.py": "91827811e04f829cd093e0544b123c509620a8a6d95a1ce6023d1061ab8f164e",
+    "host/generate_tables.py": "2a15e2fe4cbf734e2dfc22045905bcbad08ee9473235976d83bc7711e9655d86",
+    "host/verify.py": "83f934f36192064de0598a1ac4094741c4869b46f8e3bc8c741aa09d975efa45"
+  },
+  "header_fields": {
+    "node_id": {
+      "type": "unsigned integer",
+      "bits": 8,
+      "range": [
+        0,
+        255
+      ]
+    },
+    "date_code": {
+      "type": "unsigned integer",
+      "bits": 5,
+      "range": [
+        0,
+        31
+      ]
+    },
+    "battery_code": {
+      "type": "unsigned integer",
+      "bits": 3,
+      "range": [
+        0,
+        7
+      ]
+    },
+    "byte_1": "(date_code << 3) | battery_code"
+  }
+}
