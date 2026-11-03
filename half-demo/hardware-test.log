@@ -1,0 +1,357 @@
+3 November 2026: ESP32-D0WD-V3 rev3.1; detected 4MB flash; sender ML-only test.
+Normal sender firmware previously stopped at SX1278 init (RegVersion 00); radio is explicitly bypassed in this test.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ult.
+ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6280
+load:0x40078000,len:15864
+load:0x40080400,len:3920
+entry 0x40080644
+I (27) boot: ESP-IDF 5.5.3 2nd stage bootloader
+I (27) boot: compile time Nov  3 2026 19:35:11
+I (28) boot: Multicore bootloader
+I (29) boot: chip revision: v3.1
+I (31) boot.esp32: SPI Speed      : 40MHz
+I (35) boot.esp32: SPI Mode       : DIO
+I (39) boot.esp32: SPI Flash Size : 2MB
+I (42) boot: Enabling RNG early entropy source...
+I (47) boot: Partition Table:
+I (49) boot: ## Label            Usage          Type ST Offset   Length
+I (56) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (62) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (69) boot:  2 factory          factory app      00 00 00010000 00100000
+I (75) boot: End of partition table
+I (79) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=412b8h (266936) map
+I (177) esp_image: segment 1: paddr=000512e0 vaddr=3ffb0000 size=02868h ( 10344) load
+I (181) esp_image: segment 2: paddr=00053b50 vaddr=40080000 size=0c4c8h ( 50376) load
+I (201) esp_image: segment 3: paddr=00060020 vaddr=400d0020 size=30684h (198276) map
+I (269) esp_image: segment 4: paddr=000906ac vaddr=4008c4c8 size=008a0h (  2208) load
+I (270) esp_image: segment 5: paddr=00090f54 vaddr=50000000 size=00020h (    32) load
+I (280) boot: Loaded app from partition at offset 0x10000
+I (280) boot: Disabling RNG early entropy source...
+I (295) cpu_start: Multicore app
+I (303) cpu_start: GPIO 3 and 1 are used as console UART I/O pins
+I (303) cpu_start: Pro cpu start user code
+I (303) cpu_start: cpu freq: 160000000 Hz
+I (305) app_init: Application information:
+I (309) app_init: Project name:     half_demo
+I (313) app_init: App version:      1
+I (316) app_init: Compile time:     Nov  3 2026 19:33:12
+I (321) app_init: ELF file SHA256:  99c3a0cd1...
+I (326) app_init: ESP-IDF:          5.5.3
+I (329) efuse_init: Min chip rev:     v0.0
+I (333) efuse_init: Max chip rev:     v3.99
+I (337) efuse_init: Chip rev:         v3.1
+I (341) heap_init: Initializing. RAM available for dynamic allocation:
+I (347) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (353) heap_init: At 3FFB56B0 len 0002A950 (170 KiB): DRAM
+I (358) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (363) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (369) heap_init: At 4008CD68 len 00013298 (76 KiB): IRAM
+W (375) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+I (387) spi_flash: detected chip: generic
+I (391) spi_flash: flash io: dio
+W (393) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (407) main_task: Started on CPU0
+I (410) main_task: Calling app_main()
+I (421) ROLE SENDER Node=1 115200 baud
+ML_ONLY TEST: LoRa disabled; submissions stay in volatile RAM, no radio delivery is tested.
+MODEL stream1s_w8_d4 sha256=22c373cfc93af09fd3fc5c84f384ea273f7c815dd08ab7100b74be5e238a5a46 arena_used=40652 reserved=65536 clip=80000 samples in flash
+SENDER ready. Type c for one ten-second run; r retries only an unqueued result.
+HOST: c (run 1 after two seconds idle)
+WINDOW 1 samples=[0,8000) probability=0.988281250 bits=3f7d0000
+HOST: c while busy (must be rejected)
+BUSY: command rejected
+WINDOW 2 samples=[8000,16000) probability=0.988281250 bits=3f7d0000
+WINDOW 3 samples=[16000,24000) probability=0.992187500 bits=3f7e0000
+WINDOW 4 samples=[24000,32000) probability=0.988281250 bits=3f7d0000
+WINDOW 5 samples=[32000,40000) probability=0.992187500 bits=3f7e0000
+WINDOW 6 samples=[40000,48000) probability=0.988281250 bits=3f7d0000
+WINDOW 7 samples=[48000,56000) probability=0.992187500 bits=3f7e0000
+WINDOW 8 samples=[56000,64000) probability=0.988281250 bits=3f7d0000
+WINDOW 9 samples=[64000,72000) probability=0.988281250 bits=3f7d0000
+WINDOW 10 samples=[72000,80000) probability=0.984375000 bits=3f7c0000
+MEAN windows=10 probability=0.989062488 bits=3f7d3333
+SUBMISSION Queued measurement=1 day=3 battery=SIMULATED 100.0% code=7
+HOST: c (run 2)
+WINDOW 1 samples=[0,8000) probability=0.988281250 bits=3f7d0000
+WINDOW 2 samples=[8000,16000) probability=0.988281250 bits=3f7d0000
+WINDOW 3 samples=[16000,24000) probability=0.992187500 bits=3f7e0000
+WINDOW 4 samples=[24000,32000) probability=0.988281250 bits=3f7d0000
+WINDOW 5 samples=[32000,40000) probability=0.992187500 bits=3f7e0000
+WINDOW 6 samples=[40000,48000) probability=0.988281250 bits=3f7d0000
+WINDOW 7 samples=[48000,56000) probability=0.992187500 bits=3f7e0000
+WINDOW 8 samples=[56000,64000) probability=0.988281250 bits=3f7d0000
+WINDOW 9 samples=[64000,72000) probability=0.988281250 bits=3f7d0000
+WINDOW 10 samples=[72000,80000) probability=0.984375000 bits=3f7c0000
+MEAN windows=10 probability=0.989062488 bits=3f7d3333
+SUBMISSION Queued measurement=2 day=3 battery=SIMULATED 100.0% code=7
+HOST: r (must not resubmit an already queued result)
+No unqueued result to retry
+PASS: 2 runs / 20 ESP inference outputs match host reference bits; mean=3f7d3333; IDs=[1, 2]; busy rejection and no duplicate retry passed; run seconds=[4.912, 4.911].
+
+Host comparison: ai-edge-litert 2.3.0 BUILTIN_REF; unchanged C logmel frontend compiled with LOGMEL_USE_LOGF.
+input scale/zero=(0.0945814773440361, 115), output scale/zero=(0.00390625, -128)
+WINDOW 1 q=125 probability=0.988281250 bits=3f7d0000
+WINDOW 2 q=125 probability=0.988281250 bits=3f7d0000
+WINDOW 3 q=126 probability=0.992187500 bits=3f7e0000
+WINDOW 4 q=125 probability=0.988281250 bits=3f7d0000
+WINDOW 5 q=126 probability=0.992187500 bits=3f7e0000
+WINDOW 6 q=125 probability=0.988281250 bits=3f7d0000
+WINDOW 7 q=126 probability=0.992187500 bits=3f7e0000
+WINDOW 8 q=125 probability=0.988281250 bits=3f7d0000
+WINDOW 9 q=125 probability=0.988281250 bits=3f7d0000
+WINDOW 10 q=124 probability=0.984375000 bits=3f7c0000
+MEAN probability=0.989062488 bits=3f7d3333

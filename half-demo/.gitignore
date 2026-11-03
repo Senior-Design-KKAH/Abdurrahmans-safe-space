@@ -1,0 +1,12 @@
+.pio/
+build*/
+managed_components/
+sdkconfig
+sdkconfig.old
+sdkconfig.sender*
+sdkconfig.head*
+__pycache__/
+*.sqlite3*
+main/config.local.h
+sdkconfig.ml-test*
+sdkconfig.radio-test*

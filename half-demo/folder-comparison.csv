@@ -1,0 +1,8 @@
+folder,path,split,crop_start_sample,crop_samples,audio,confirmation,visual,comment,workbook_sheet,workbook_row,score,score_bits,window_min,window_max,window_sd_population,elapsed_seconds,host_mean_bits_match
+folder_26,field/field/test/folder_26/F_20200529180809_1_T26.4.wav,val,0,80000,1,YES,B,"urban, trees near alley, waveguide",Sheet1,27,0.989062488079071,3f7d3333,0.984375,0.9921875,0.0023437500000000003,4.9119718430010835,True
+folder_27,field/field/test/folder_27/F_20200529181109_1.wav,val,0,80000,1,YES,B,"urban, trees near alley",Sheet1,28,0.911328136920929,3f694ccd,0.875,0.95703125,0.02230670552385818,4.911972523001168,True
+folder_28,field/field/test/folder_28/F_20200604165844_1.wav,train,0,80000,1,YES,B,"urban, trees near alley",Sheet1,29,0.9527343511581421,3f73e666,0.83984375,0.984375,0.03992982430640817,4.911735605999638,True
+folder_30,field/field/test/folder_30/F_20200602171929_1.wav,val,0,80000,1,YES,B,"urban, trees near alley",Sheet1,31,0.9105468988418579,3f69199a,0.84375,0.97265625,0.044656143391230335,4.911621230001401,True
+folder_31,field/field/test/folder_31/F_20200602172249_1.wav,train,0,80000,1,YES,B,"urban, trees near alley",Sheet1,32,0.951953113079071,3f73b333,0.9375,0.96875,0.009889835079040751,4.911990296999647,True
+folder_33,field/field/test/folder_33/F_20200610171324_1.wav,train,0,80000,1,YES,B,"urban, trees near alley",Sheet1,34,0.9664062261581421,3f776666,0.9453125,0.984375,0.013212136347881065,4.9118977329999325,True
+folder_34,field/field/test/folder_34/F_20200529190947_13_T21.2.wav,val,0,80000,1,YES,B,"urban, trees near alley",Sheet1,35,0.977734386920929,3f7a4ccd,0.96875,0.98828125,0.007624695818727787,4.9122209640008805,True
