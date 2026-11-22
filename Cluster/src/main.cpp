@@ -11,7 +11,15 @@
 #include "radio.h"
 #include "uplink.h"
 
+#if __has_include("secrets.h")
 #include "secrets.h"
+#else
+#define NAKHEL_WIFI_SSID ""
+#define NAKHEL_WIFI_PASSWORD ""
+#define NAKHEL_SERVER_URL ""
+#define NAKHEL_API_KEY ""
+#define NAKHEL_ROOT_CA ""
+#endif
 
 using namespace wire;
 

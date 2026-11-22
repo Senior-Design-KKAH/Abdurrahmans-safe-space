@@ -9,7 +9,7 @@ target_compile_options(${COMPONENT_LIB} PRIVATE -ffp-contract=off)
 
 option(EDGE_MODEL_CHECK "Include the known development clip and serial model check" OFF)
 if(EDGE_MODEL_CHECK)
-    set(clip_dir "${CMAKE_CURRENT_LIST_DIR}/../../../half-demo/main/generated")
+    set(clip_dir "${CMAKE_CURRENT_LIST_DIR}/fixture")
     target_sources(${COMPONENT_LIB} PRIVATE "${clip_dir}/clip.cc")
     target_include_directories(${COMPONENT_LIB} PRIVATE "${clip_dir}")
     target_compile_definitions(${COMPONENT_LIB} PRIVATE EDGE_MODEL_CHECK=1)
