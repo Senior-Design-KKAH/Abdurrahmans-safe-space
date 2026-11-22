@@ -1,0 +1,7 @@
+build*/
+.pio/
+managed_components/
+sdkconfig
+sdkconfig.old
+Edge/sdkconfig.edge
+Edge/sdkconfig.edge.old
